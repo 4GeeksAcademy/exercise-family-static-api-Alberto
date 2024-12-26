@@ -52,15 +52,31 @@ def get_all_members():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/member/<int:member_id>', methods=['GET'])
-def get_member(member_id):
-    try:
-        member = jackson_family.get_member(member_id)
-        if member is None:
-            return jsonify({"error": f"Member with id {member_id} not found"}), 400
-        return jsonify(member), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+@app.route('/member/<int:id>', methods=['GET'])
+def get_member(id):
+    member = jackson_family.get_member(id)
+    return jsonify(member), 200
+    
+@app.route('/member', methods=['POST'])
+def create_member():
+    member = request.json
+    print("added", member)
+    jackson_family.add_member(member)
+    if member is not None:
+        return "member created", 200
+
+@app.route('/member/<int:id>', methods=['DELETE'])
+def delete_member(id):
+    member = jackson_family.get_member(id)
+ 
+    if member:
+        jackson_family.delete_member(id)
+        return jsonify({"message": f"Member deleted successfully: {member}"}), 200
+    else:
+        return jsonify({"error": "Member not found"}), 404
+
+
+
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
